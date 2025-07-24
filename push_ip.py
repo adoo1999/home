@@ -1,8 +1,9 @@
 
 from bs4 import BeautifulSoup
 import requests
-from git import Repo
 import time
+from git import Repo, GitCommandError, InvalidGitRepositoryError, NoSuchPathError
+import sys
 
 def get_external_ip():
     try:
@@ -41,11 +42,40 @@ while True:
     # 4. 다시 index.html에 저장
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(str(soup.prettify()))
+
+    try:
+        repo = Repo(".")
+    except (InvalidGitRepositoryError, NoSuchPathError) as e:
+        print(f"Git 저장소 오류: {e}")
+        time.sleep(10)
+        continue
         
-    repo = Repo(".")
-    repo.git.add("index.html")
-    repo.index.commit("Add index.html")
-    origin = repo.remote(name="origin")
-    origin.push()
+    try:
+        repo.git.add("index.html")
+    except GitCommandError as e:
+        print(f"파일 추가 실패: {e}")
+        time.sleep(10)
+        continue
+    
+    try:
+        repo.index.commit("Add index.html")
+    except GitCommandError as e:
+        print(f"커밋 실패: {e}")
+        time.sleep(10)
+        continue
+        
+    try:
+        origin = repo.remote(name="origin")
+    except ValueError:
+        print("원격 저장소 'origin'을 찾을 수 없습니다.")
+        time.sleep(10)
+        continue
+        
+    try:
+        origin.push()
+    except GitCommandError as e:
+        print(f"푸시 실패: {e}")
+        time.sleep(10)
+        continue
     
     prevIp = ip
