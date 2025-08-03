@@ -33,7 +33,7 @@ while True:
 
     # 3. href 변경
     if a_tag:
-        url = "http://" + ip + ":5185"
+        url = "http://" + ip
         a_tag['href'] = url
         print(url + " 링크 수정 완료.")
     else:
