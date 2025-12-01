@@ -20,7 +20,7 @@ prevIp = "";
 while True:
     ip = get_external_ip();
 
-    if ip == prevIp:
+    if ip == prevIp or ip == "":
         time.sleep(60)
         continue
     
